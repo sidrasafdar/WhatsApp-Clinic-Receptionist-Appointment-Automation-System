@@ -1,0 +1,538 @@
+# 🏥 AI-Powered WhatsApp Clinic Receptionist & Appointment Automation
+
+An end-to-end **clinic receptionist and appointment management automation system built with n8n**, designed to handle patient communication through WhatsApp, manage appointment availability, process bookings and cancellations, handle escalations, and generate daily operational reports.
+
+The project simulates the workflow of an eye surgery center and demonstrates how multiple automation workflows can work together as a complete clinic operations system.
+
+---
+
+## 🚀 Project Overview
+
+The system provides an automated WhatsApp receptionist that can assist patients with:
+
+* Appointment booking
+* Appointment cancellation
+* Appointment rescheduling
+* Doctor information
+* Clinic branch information
+* Available appointment slots
+* General clinic services
+* Emergency handling
+* Human escalation when required
+
+Behind the WhatsApp conversation, multiple workflows handle appointment availability, slot management, blocked dates, booking records, escalations, and reporting.
+
+---
+
+## ✨ Key Features
+
+### 💬 WhatsApp Receptionist
+
+* WhatsApp-based patient communication
+* English and Urdu language support
+* Appointment-related conversations
+* Service and doctor information
+* Patient detail collection
+* Emergency case detection
+* Human support escalation
+
+### 📅 Appointment Management
+
+* Check doctor availability
+* Search available appointment slots
+* Book appointments
+* Cancel appointments
+* Reopen cancelled appointment slots
+* Reschedule appointments
+* Generate appointment booking records
+* Maintain appointment status
+
+### 🗓️ Slot Management
+
+The system manages appointment slots based on:
+
+* Doctor
+* Clinic branch
+* Date
+* Start time
+* End time
+* Slot status
+
+Available slots can automatically be changed to `Blocked` when they overlap with an active doctor block.
+
+When a block is removed or deactivated, previously blocked slots can be reopened as `Available`.
+
+### 🚫 Blocked Dates & Time Periods
+
+The **Apply Blocked Dates** workflow automatically compares doctor blocking records with existing appointment slots.
+
+It checks:
+
+* Doctor
+* Branch
+* Date
+* Start time
+* End time
+
+Matching available slots are automatically marked as blocked while booked appointments remain unchanged.
+
+### 🏥 Multiple Clinic Branches
+
+The project supports four clinic branches:
+
+* Gulberg
+* DHA
+* Johar Town
+* Model Town
+
+### 👨‍⚕️ Doctor Management
+
+The system supports multiple doctors and associates doctors with their respective clinic branches and schedules.
+
+### 📊 Daily Reporting
+
+The reporting workflow collects operational statistics and generates a daily summary containing:
+
+* Total conversations
+* Unique patients
+* Appointment requests
+* Pending appointment confirmations
+* Escalations
+* Emergency cases
+* Pending staff responses
+* System errors
+* Open errors
+
+The final report is automatically sent by email to the designated recipient.
+
+---
+
+## 🔄 Main Workflow Architecture
+
+```text
+Patient
+   │
+   ▼
+WhatsApp
+   │
+   ▼
+AI Receptionist
+   │
+   ├── General Questions
+   │
+   ├── Appointment Booking
+   │       │
+   │       ▼
+   │   Check Availability
+   │       │
+   │       ▼
+   │   Book Appointment
+   │
+   ├── Cancellation
+   │       │
+   │       ▼
+   │   Find Booking
+   │       │
+   │       ▼
+   │   Cancel Appointment
+   │       │
+   │       ▼
+   │   Reopen Slot
+   │
+   ├── Rescheduling
+   │
+   ├── Emergency
+   │
+   └── Human Escalation
+
+Appointment Database
+        │
+        ▼
+Slot Management
+        │
+        ├── Apply Blocked Dates
+        │
+        └── Reopen Available Slots
+
+All Operational Data
+        │
+        ▼
+Daily Statistics
+        │
+        ▼
+Daily Summary
+        │
+        ▼
+Email Report
+```
+
+---
+
+## 🧩 Main Automation Components
+
+### 1. WhatsApp Receptionist
+
+Handles incoming patient messages and determines the appropriate action.
+
+Typical intents include:
+
+* FAQ
+* Appointment
+* Human support
+* Emergency
+
+---
+
+### 2. Appointment Availability
+
+Checks appointment slots based on the patient's requested:
+
+* Doctor
+* Branch
+* Date
+* Time
+
+Only appropriate available slots are returned for booking.
+
+---
+
+### 3. Appointment Booking
+
+Once the patient confirms an available slot, the workflow records the appointment and updates the slot status.
+
+Example status:
+
+```text
+Available
+Booked
+Blocked
+Cancelled
+```
+
+---
+
+### 4. Appointment Cancellation
+
+The cancellation workflow:
+
+1. Finds the patient's booking
+2. Verifies the booking
+3. Cancels the appointment
+4. Updates the appointment record
+5. Reopens the associated slot when appropriate
+
+---
+
+### 5. Apply Blocked Dates
+
+Doctor leave or unavailable periods can be stored as blocking records.
+
+The workflow compares those records against generated appointment slots.
+
+Example:
+
+```text
+Doctor: Dr. Ayesha Khan
+Branch: Gulberg
+Date: 2026-09-30
+Time: 10:00 - 13:00
+```
+
+Matching appointment slots are automatically changed to:
+
+```text
+Blocked
+```
+
+---
+
+### 6. Daily Statistics
+
+Multiple reporting stages calculate operational metrics for the current day using the:
+
+```text
+Asia/Karachi
+```
+
+timezone.
+
+The statistics are combined before the final email is generated.
+
+---
+
+### 7. Daily Email Summary
+
+The final workflow creates a plain-text operational report.
+
+Example structure:
+
+```text
+Hi-Tech Eye Surgery Center – Daily Summary
+
+Date: 2026-09-30
+
+PATIENT ACTIVITY
+----------------
+Total conversations: 25
+Unique patients: 18
+
+APPOINTMENTS
+------------
+New appointment requests: 12
+Pending appointment confirmations: 3
+
+ESCALATIONS
+-----------
+Escalations today: 4
+Emergency cases today: 1
+Pending staff responses: 2
+
+SYSTEM
+------
+Errors today: 0
+Open errors: 0
+```
+
+The completed summary is automatically sent by email.
+
+---
+
+## 🛠️ Technology Stack
+
+| Technology                  | Purpose                            |
+| --------------------------- | ---------------------------------- |
+| **n8n**                     | Workflow automation                |
+| **WhatsApp Business Cloud** | Patient communication              |
+| **AI / LLM**                | Conversation and intent handling   |
+| **PostgreSQL**              | Appointment and clinic data        |
+| **JavaScript**              | Data processing and workflow logic |
+| **Email**                   | Daily operational reporting        |
+
+---
+
+## 🗄️ Database Structure
+
+The project uses structured data for managing doctors, schedules, appointments, and operational records.
+
+### Doctors
+
+```text
+doctor_id
+doctor_name
+branch
+active
+```
+
+### Doctor Schedules
+
+```text
+schedule_id
+doctor_id
+doctor_name
+branch
+day
+start_time
+end_time
+slot_duration
+active
+```
+
+### Appointment Slots
+
+```text
+slot_id
+doctor_name
+branch
+slot_date
+day
+start_time
+end_time
+status
+patient_name
+whatsapp_number
+reason_for_visit
+booked_at
+meta_message_id
+staff_notes
+```
+
+### Blocked Dates / Time Periods
+
+```text
+block_id
+doctor_name
+branch
+block_date
+start_time
+end_time
+active
+```
+
+---
+
+## 🌍 Supported Languages
+
+The patient-facing receptionist supports:
+
+* 🇬🇧 English
+* 🇵🇰 Urdu
+
+The system can also process Urdu written in Roman script and respond appropriately in Urdu.
+
+---
+
+## ⏰ Timezone
+
+All appointment and daily reporting logic uses:
+
+```text
+Asia/Karachi
+```
+
+This ensures that appointment dates, daily statistics, and reports are aligned with the clinic's local time.
+
+---
+
+## 📁 Repository Structure
+
+A suggested repository structure:
+
+```text
+clinic-whatsapp-automation/
+│
+├── workflows/
+│   ├── whatsapp-receptionist.json
+│   ├── appointment-booking.json
+│   ├── appointment-cancellation.json
+│   ├── appointment-rescheduling.json
+│   ├── apply-blocked-dates.json
+│   └── daily-report.json
+│
+├── database/
+│   └── schema.sql
+│
+├── screenshots/
+│
+├── README.md
+└── .gitignore
+```
+
+---
+
+## ⚙️ Setup
+
+### 1. Install / Create n8n
+
+Create an n8n instance and import the workflow JSON files from this repository.
+
+### 2. Configure WhatsApp
+
+Connect your WhatsApp Business Cloud credentials and configure the required webhook and messaging settings.
+
+### 3. Configure Database
+
+Create the required PostgreSQL tables using the SQL schema provided in the repository.
+
+### 4. Configure AI Model
+
+Connect the supported AI model to the receptionist workflow and configure the required credentials.
+
+### 5. Configure Email
+
+Connect the email provider used for the daily operational report.
+
+### 6. Import Workflows
+
+Import the workflow JSON files into n8n and reconnect credentials where required.
+
+### 7. Test
+
+Test the following flows:
+
+```text
+Patient → WhatsApp → Receptionist
+Patient → Book Appointment
+Patient → Cancel Appointment
+Patient → Reschedule Appointment
+Doctor Block → Slot Blocking
+Cancelled Appointment → Slot Reopening
+Daily Data → Statistics → Email Report
+```
+
+---
+
+## 🔐 Environment & Credentials
+
+Credentials should **never** be committed to the repository.
+
+Store sensitive information inside n8n credentials or environment variables.
+
+Examples:
+
+```text
+WhatsApp Access Token
+WhatsApp Phone Number ID
+Database Credentials
+AI API Key
+Email Credentials
+```
+
+Add sensitive files to `.gitignore`.
+
+---
+
+## 📌 Important Notes
+
+This repository is intended as a portfolio and demonstration project showing how a multi-workflow AI automation system can be designed using n8n.
+
+The clinic, doctors, appointment records, and operational data used in the project are demonstration data.
+
+---
+
+## 🎯 What This Project Demonstrates
+
+This project demonstrates practical experience with:
+
+* End-to-end n8n workflow design
+* AI-powered conversational automation
+* WhatsApp Business Cloud integration
+* Appointment management
+* Database-driven automation
+* JavaScript data processing
+* Conditional workflow logic
+* Slot availability management
+* Date/time handling
+* Doctor schedule management
+* Error and escalation tracking
+* Automated reporting
+* Email automation
+* Multi-workflow system architecture
+
+---
+
+## 🔮 Future Improvements
+
+Potential improvements include:
+
+* Staff dashboard
+* Real-time appointment calendar
+* Doctor-specific dashboards
+* Automated appointment reminders
+* Follow-up messages
+* Patient history
+* Analytics dashboard
+* Advanced staff notification system
+* Audit logging
+* More granular access control
+
+---
+
+## 👤 Author  Sidra Safdar
+
+Built as part of my **AI Automation & n8n portfolio**, focusing on practical, end-to-end automation systems that combine AI, APIs, databases, messaging platforms, and business workflows.
+
+---
+
+## ⭐ Support
+
+If you find this project useful or interesting, consider giving the repository a ⭐ and following the project for future automation builds.
